@@ -8,15 +8,14 @@
   :root{
     --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
     --txt:#e7e9ee; --sub:#9aa2b1; --accent:#4f8cff; --ok:#3ecf8e; --warn:#ffb454; --bad:#ff5c5c;
-    --efectivo:#3ecf8e; --tarjeta:#4f8cff;
+    --efectivo:#3ecf8e; --tarjeta:#4f8cff; --prod:#ffb454;
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);}
   header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
   header h1{margin:0;font-size:18px;}
   header .fecha{color:var(--sub);font-size:13px;}
-  /* Tabs */
-  .tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);}
+  .tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);flex-wrap:wrap;}
   .tab{padding:12px 18px;font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;}
   .tab.activa{color:var(--txt);border-bottom-color:var(--accent);}
   .wrap{max-width:1180px;margin:0 auto;padding:20px;}
@@ -26,6 +25,7 @@
   @media (max-width:860px){.grid{grid-template-columns:1fr;}}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px;}
   .card h2{margin:0 0 12px;font-size:14px;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;}
+  .card h2 .demo-tag{background:#3a2f1f;color:var(--warn);border-radius:5px;padding:2px 7px;font-size:10px;margin-left:8px;letter-spacing:0;text-transform:none;}
   label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px;}
   input,select{width:100%;padding:8px 10px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:14px;}
   .row{display:flex;gap:10px;}
@@ -33,7 +33,6 @@
   button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;}
   .btn-primary{background:var(--accent);color:#fff;width:100%;margin-top:14px;}
   .btn-sec{background:var(--panel2);color:var(--txt);border:1px solid var(--border);width:100%;margin-top:8px;}
-  .btn-chico{background:var(--panel2);color:var(--txt);border:1px solid var(--border);}
   .btn-quitar{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:4px 9px;font-size:11px;}
   .btn-editar{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:4px 9px;font-size:11px;margin-right:6px;}
   .toggle-fila{display:flex;gap:8px;margin-top:4px;}
@@ -46,6 +45,8 @@
   .fila-barbero .acciones{display:flex;flex-shrink:0;}
   .chip{display:inline-block;background:#26304a;color:#8fb4ff;border-radius:6px;padding:2px 7px;font-size:11px;margin-left:6px;}
   .chip.fijo{background:#2a2530;color:#d6a6ff;}
+  .chip.stock{background:#1f3a2e;color:#9ff0c4;}
+  .chip.stock.bajo{background:#3a1f1f;color:#ff9f9f;}
   .lista-cobros{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
   .cobro-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
   .cobro-item .meta{color:var(--sub);}
@@ -56,9 +57,10 @@
   .mini-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
   .mini-card .lbl{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;}
   .mini-card .val{font-size:22px;font-weight:700;margin-top:4px;}
+  .mini-card .val small{font-size:12px;color:var(--sub);font-weight:500;}
   .mini-card.efectivo .val{color:var(--efectivo);}
   .mini-card.tarjeta .val{color:var(--tarjeta);}
-  .mini-card.producto .val{color:var(--warn);}
+  .mini-card.producto .val{color:var(--prod);}
   .panel-nomina{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
   .panel-nomina .nombre{font-weight:700;font-size:15px;margin-bottom:6px;}
   .panel-nomina .linea{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
@@ -89,6 +91,20 @@
   .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:360px;}
   .modal h3{margin:0 0 6px;font-size:16px;}
   .modal .sub{color:var(--sub);font-size:13px;margin-bottom:8px;}
+  /* Tabla inventario */
+  .tabla-inv{width:100%;border-collapse:collapse;font-size:13px;}
+  .tabla-inv th{text-align:left;color:var(--sub);font-size:11px;text-transform:uppercase;letter-spacing:.03em;padding:6px 8px;border-bottom:1px solid var(--border);}
+  .tabla-inv td{padding:8px;border-bottom:1px solid var(--border);}
+  .tabla-inv tr:last-child td{border-bottom:none;}
+  .tabla-inv .acciones-inv{text-align:right;white-space:nowrap;}
+  /* Barras gráfico */
+  .barra-fila{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;}
+  .barra-fila .nom{width:110px;flex-shrink:0;text-align:right;color:var(--sub);}
+  .barra-track{flex:1;background:var(--panel2);border-radius:6px;height:22px;overflow:hidden;position:relative;}
+  .barra-fill{height:100%;background:linear-gradient(90deg,#4f8cff,#6ba3ff);border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;min-width:2px;transition:width .3s;}
+  .barra-fill.prod{background:linear-gradient(90deg,#ffb454,#ffca7a);color:#3a2600;}
+  .dos-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:720px){.dos-col{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -100,17 +116,18 @@
 <div class="tabs">
   <button class="tab activa" onclick="irA('cobro',this)">Cobro</button>
   <button class="tab" onclick="irA('barberos',this)">Barberos</button>
+  <button class="tab" onclick="irA('productos',this)">Productos</button>
   <button class="tab" onclick="irA('agenda',this)">Agenda</button>
 </div>
 
-<!-- ============ PÁGINA COBRO ============ -->
+<!-- ============ COBRO ============ -->
 <div class="pagina activa" id="pag-cobro">
   <div class="wrap">
     <div class="cards-resumen">
       <div class="mini-card"><div class="lbl">Producción del día</div><div class="val" id="rProduccion">$0</div></div>
       <div class="mini-card efectivo"><div class="lbl">Efectivo</div><div class="val" id="rEfectivo">$0</div></div>
       <div class="mini-card tarjeta"><div class="lbl">Tarjeta</div><div class="val" id="rTarjeta">$0</div></div>
-      <div class="mini-card producto"><div class="lbl">Productos</div><div class="val" id="rProducto">$0</div></div>
+      <div class="mini-card producto"><div class="lbl">Productos</div><div class="val" id="rProducto">$0 <small id="rProductoUds">(0 uds)</small></div></div>
     </div>
 
     <div class="grid">
@@ -124,6 +141,12 @@
           <div class="toggle-fila">
             <button type="button" id="btnServicio" class="activo" onclick="elegirTipo('servicio')">Servicio</button>
             <button type="button" id="btnProducto" onclick="elegirTipo('producto')">Producto</button>
+          </div>
+
+          <!-- Selector de producto (solo visible en modo producto) -->
+          <div id="bloqueProducto" style="display:none;">
+            <label>Producto disponible</label>
+            <select id="selProducto" onchange="alElegirProducto()"></select>
           </div>
 
           <label id="lblMonto">Monto del servicio ($)</label>
@@ -149,7 +172,7 @@
   </div>
 </div>
 
-<!-- ============ PÁGINA BARBEROS ============ -->
+<!-- ============ BARBEROS ============ -->
 <div class="pagina" id="pag-barberos">
   <div class="wrap">
     <div class="card">
@@ -166,13 +189,11 @@
       <h2 id="tituloGestor">Agregar barbero</h2>
       <label>Nombre</label>
       <input id="inNombre" placeholder="Ej. Antony">
-
       <label>Método de pago</label>
       <div class="toggle-fila">
         <button type="button" id="btnMetPct" class="activo" onclick="elegirMetodoBarbero('porcentaje')">% Porcentaje</button>
         <button type="button" id="btnMetFijo" onclick="elegirMetodoBarbero('fijo')">Sueldo fijo</button>
       </div>
-
       <div id="campoPorcentaje">
         <label>Porcentaje sobre servicios (%)</label>
         <input id="inPorcentaje" type="number" value="50" min="0" max="100">
@@ -181,7 +202,6 @@
         <label>Sueldo fijo SEMANAL ($)</label>
         <input id="inFijo" type="number" value="1800" min="0">
       </div>
-
       <label>Comisión por venta de producto</label>
       <div class="row">
         <select id="inTipoComProd">
@@ -190,16 +210,75 @@
         </select>
         <input id="inComProd" type="number" value="10" min="0">
       </div>
-
       <button class="btn-primary" id="btnGuardarBarbero" onclick="guardarBarbero()">+ Agregar barbero</button>
       <button class="btn-sec" id="btnCancelarEdicion" style="display:none;" onclick="cancelarEdicion()">Cancelar edición</button>
-
       <div class="lista-barberos" id="listaBarberos"></div>
     </div>
   </div>
 </div>
 
-<!-- ============ PÁGINA AGENDA ============ -->
+<!-- ============ PRODUCTOS ============ -->
+<div class="pagina" id="pag-productos">
+  <div class="wrap">
+    <!-- Gestor de inventario -->
+    <div class="card">
+      <h2 id="tituloGestorProd">Agregar producto al inventario</h2>
+      <label>Nombre del producto</label>
+      <input id="inProdNombre" placeholder="Ej. Cera mate">
+      <div class="row">
+        <div>
+          <label>Costo (lo que te costó) $</label>
+          <input id="inProdCosto" type="number" value="0" min="0">
+        </div>
+        <div>
+          <label>Precio de venta $</label>
+          <input id="inProdPrecio" type="number" value="0" min="0">
+        </div>
+        <div>
+          <label>Unidades (stock)</label>
+          <input id="inProdStock" type="number" value="0" min="0">
+        </div>
+      </div>
+      <button class="btn-primary" id="btnGuardarProd" onclick="guardarProducto()">+ Agregar producto</button>
+      <button class="btn-sec" id="btnCancelarProd" style="display:none;" onclick="cancelarEdicionProd()">Cancelar edición</button>
+
+      <div style="overflow-x:auto;margin-top:16px;">
+        <table class="tabla-inv" id="tablaInventario">
+          <thead><tr><th>Producto</th><th>Costo</th><th>Precio</th><th>Stock</th><th>Vendidos hoy</th><th></th></tr></thead>
+          <tbody><tr><td colspan="6" class="vacio">Sin productos en el inventario</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Control de venta -->
+    <div class="card">
+      <h2>Control de venta de producto</h2>
+      <div class="cards-resumen">
+        <div class="mini-card producto"><div class="lbl">Vendido hoy</div><div class="val" id="pcHoy">$0 <small id="pcHoyUds">(0 uds)</small></div></div>
+        <div class="mini-card"><div class="lbl">Ganancia hoy <span style="font-size:9px;">(precio − costo)</span></div><div class="val" id="pcGanancia">$0</div></div>
+        <div class="mini-card"><div class="lbl">Semana <span style="color:var(--warn);font-size:9px;">demo</span></div><div class="val" id="pcSemana">$0</div></div>
+        <div class="mini-card"><div class="lbl">Mes <span style="color:var(--warn);font-size:9px;">demo</span></div><div class="val" id="pcMes">$0</div></div>
+      </div>
+
+      <div class="dos-col">
+        <div>
+          <h2 style="font-size:12px;">Más vendidos (unidades)</h2>
+          <div id="graficoMas"><div class="vacio">Vende productos para ver el ranking</div></div>
+        </div>
+        <div>
+          <h2 style="font-size:12px;">Ventas por día de la semana <span class="demo-tag">datos demo</span></h2>
+          <div id="graficoSemana"></div>
+        </div>
+      </div>
+
+      <div class="nota" style="margin-top:14px;">
+        <b>Vendido hoy / Ganancia / Más vendidos</b> son reales (de esta sesión). <b>Semana, Mes y el gráfico por día</b> usan datos de ejemplo solo para mostrar el diseño — se volverán reales al conectar la base de datos.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AGENDA ============ -->
 <div class="pagina" id="pag-agenda">
   <div class="wrap">
     <div class="card">
@@ -233,22 +312,30 @@
 
 <script>
 // ===== Estado =====
-let barberos = [];  // {id, nombre, metodo, porcentaje, sueldoFijo, tipoComProd, comProd}
-let cobros = [];    // {id, barberoId, tipo, monto, metodo}
-let citas = [];     // {id, barberoId, hora, servicio, cliente}
+let barberos = [];   // {id, nombre, metodo, porcentaje, sueldoFijo, tipoComProd, comProd}
+let cobros = [];     // {id, barberoId, tipo, monto, metodo, productoId?}
+let citas = [];      // {id, barberoId, hora, servicio, cliente}
+let productos = [];  // {id, nombre, costo, precio, stock}
 let metodoBarberoSel = 'porcentaje';
 let tipoCobroSel = 'servicio';
 let metodoPagoSel = 'efectivo';
-let editandoId = null;      // id del barbero en edición, o null
+let editandoId = null;
+let editandoProdId = null;
 let cont = 1;
-// Modal agenda
 let modalBarberoId = null, modalHora = null, servicioModalSel = 'Corte';
 
-// ===== Fecha =====
+// Datos DEMO para históricos (solo diseño)
+const DEMO_SEMANA = [
+  {dia:'Lun', monto:420}, {dia:'Mar', monto:280}, {dia:'Mié', monto:560},
+  {dia:'Jue', monto:340}, {dia:'Vie', monto:720}, {dia:'Sáb', monto:980}, {dia:'Dom', monto:150}
+];
+const DEMO_TOTAL_SEMANA = DEMO_SEMANA.reduce((s,d)=>s+d.monto,0);
+const DEMO_TOTAL_MES = 14300;
+
 document.getElementById('fechaHoy').textContent =
   new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-// ===== Horas de la agenda: 7:00 am a 11:30 pm cada 30 min =====
+// Horas 7:00 am – 11:30 pm cada 30 min
 const HORAS = (()=>{
   const arr=[];
   for(let m=7*60; m<=23*60+30; m+=30){
@@ -261,16 +348,17 @@ const HORAS = (()=>{
   return arr;
 })();
 
-// ===== Navegación de pestañas =====
+// ===== Pestañas =====
 function irA(pag, btn){
   document.querySelectorAll('.pagina').forEach(p=>p.classList.remove('activa'));
   document.getElementById('pag-'+pag).classList.add('activa');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('activa'));
   btn.classList.add('activa');
   if(pag==='agenda') renderAgenda();
+  if(pag==='productos') renderProductos();
 }
 
-// ===== Gestor de barberos (agregar / editar / quitar) =====
+// ===== Gestor de barberos =====
 function elegirMetodoBarbero(m){
   metodoBarberoSel = m;
   document.getElementById('btnMetPct').classList.toggle('activo', m==='porcentaje');
@@ -282,16 +370,14 @@ function guardarBarbero(){
   const nombre = document.getElementById('inNombre').value.trim();
   if(!nombre){ alert('Escribe un nombre'); return; }
   const datos = {
-    nombre,
-    metodo: metodoBarberoSel,
+    nombre, metodo: metodoBarberoSel,
     porcentaje: parseFloat(document.getElementById('inPorcentaje').value)||0,
     sueldoFijo: parseFloat(document.getElementById('inFijo').value)||0,
     tipoComProd: document.getElementById('inTipoComProd').value,
     comProd: parseFloat(document.getElementById('inComProd').value)||0
   };
   if(editandoId){
-    const b = barberos.find(x=>x.id===editandoId);
-    Object.assign(b, datos);
+    Object.assign(barberos.find(x=>x.id===editandoId), datos);
     cancelarEdicion();
   } else {
     barberos.push({ id:cont++, ...datos });
@@ -314,8 +400,7 @@ function editarBarbero(id){
   document.getElementById('pag-barberos').scrollIntoView({behavior:'smooth'});
 }
 function cancelarEdicion(){
-  editandoId = null;
-  limpiarForm();
+  editandoId = null; limpiarForm();
   document.getElementById('tituloGestor').textContent = 'Agregar barbero';
   document.getElementById('btnGuardarBarbero').textContent = '+ Agregar barbero';
   document.getElementById('btnCancelarEdicion').style.display = 'none';
@@ -329,10 +414,8 @@ function limpiarForm(){
   document.getElementById('inComProd').value=10;
 }
 function quitarBarbero(id){
-  const tieneCobros = cobros.some(c=>c.barberoId===id);
-  const tieneCitas = citas.some(c=>c.barberoId===id);
-  if(tieneCobros||tieneCitas){
-    if(!confirm('Este barbero ya tiene cobros o citas hoy. ¿Quitarlo de todos modos? Se borran sus cobros y citas.')) return;
+  if(cobros.some(c=>c.barberoId===id)||citas.some(c=>c.barberoId===id)){
+    if(!confirm('Este barbero ya tiene cobros o citas hoy. ¿Quitarlo? Se borran sus cobros y citas.')) return;
   }
   barberos = barberos.filter(b=>b.id!==id);
   cobros = cobros.filter(c=>c.barberoId!==id);
@@ -364,12 +447,144 @@ function renderSelBarbero(){
   if(prev && barberos.some(b=>b.id==prev)) sel.value = prev;
 }
 
+// ===== Gestor de productos (inventario) =====
+function guardarProducto(){
+  const nombre = document.getElementById('inProdNombre').value.trim();
+  if(!nombre){ alert('Escribe el nombre del producto'); return; }
+  const datos = {
+    nombre,
+    costo: parseFloat(document.getElementById('inProdCosto').value)||0,
+    precio: parseFloat(document.getElementById('inProdPrecio').value)||0,
+    stock: parseInt(document.getElementById('inProdStock').value)||0
+  };
+  if(editandoProdId){
+    Object.assign(productos.find(p=>p.id===editandoProdId), datos);
+    cancelarEdicionProd();
+  } else {
+    productos.push({ id:cont++, ...datos });
+    limpiarFormProd();
+  }
+  renderProductos(); renderSelProducto();
+}
+function editarProducto(id){
+  const p = productos.find(x=>x.id===id);
+  editandoProdId = id;
+  document.getElementById('inProdNombre').value = p.nombre;
+  document.getElementById('inProdCosto').value = p.costo;
+  document.getElementById('inProdPrecio').value = p.precio;
+  document.getElementById('inProdStock').value = p.stock;
+  document.getElementById('tituloGestorProd').textContent = 'Editando: '+p.nombre;
+  document.getElementById('btnGuardarProd').textContent = 'Guardar cambios';
+  document.getElementById('btnCancelarProd').style.display = 'block';
+}
+function cancelarEdicionProd(){
+  editandoProdId = null; limpiarFormProd();
+  document.getElementById('tituloGestorProd').textContent = 'Agregar producto al inventario';
+  document.getElementById('btnGuardarProd').textContent = '+ Agregar producto';
+  document.getElementById('btnCancelarProd').style.display = 'none';
+}
+function limpiarFormProd(){
+  document.getElementById('inProdNombre').value='';
+  document.getElementById('inProdCosto').value=0;
+  document.getElementById('inProdPrecio').value=0;
+  document.getElementById('inProdStock').value=0;
+}
+function quitarProducto(id){
+  if(cobros.some(c=>c.productoId===id)){
+    if(!confirm('Este producto ya tiene ventas hoy. ¿Quitarlo del inventario? (Las ventas ya hechas se conservan.)')) return;
+  }
+  productos = productos.filter(p=>p.id!==id);
+  if(editandoProdId===id) cancelarEdicionProd();
+  renderProductos(); renderSelProducto();
+}
+
+// unidades vendidas hoy de un producto
+function vendidasHoy(prodId){
+  return cobros.filter(c=>c.tipo==='producto' && c.productoId===prodId).length;
+}
+
+function renderSelProducto(){
+  const sel = document.getElementById('selProducto');
+  const disponibles = productos.filter(p=>p.stock>0);
+  if(!disponibles.length){
+    sel.innerHTML = '<option value="">— Sin productos con stock —</option>';
+  } else {
+    sel.innerHTML = disponibles.map(p=>`<option value="${p.id}">${p.nombre} — $${p.precio} (${p.stock} disp.)</option>`).join('');
+  }
+  if(tipoCobroSel==='producto') alElegirProducto();
+}
+function alElegirProducto(){
+  const id = parseInt(document.getElementById('selProducto').value);
+  const p = productos.find(x=>x.id===id);
+  if(p) document.getElementById('inMonto').value = p.precio;
+}
+
+function renderProductos(){
+  // Tabla inventario
+  const tbody = document.querySelector('#tablaInventario tbody');
+  if(!productos.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="vacio">Sin productos en el inventario</td></tr>';
+  } else {
+    tbody.innerHTML = productos.map(p=>{
+      const stockClase = p.stock<=2 ? 'stock bajo' : 'stock';
+      return `<tr>
+        <td><b>${p.nombre}</b></td>
+        <td>$${p.costo}</td>
+        <td>$${p.precio}</td>
+        <td><span class="chip ${stockClase}">${p.stock}</span></td>
+        <td>${vendidasHoy(p.id)}</td>
+        <td class="acciones-inv">
+          <button class="btn-editar" onclick="editarProducto(${p.id})">Editar</button>
+          <button class="btn-quitar" onclick="quitarProducto(${p.id})">Quitar</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // Control de venta (real de la sesión)
+  const ventasProd = cobros.filter(c=>c.tipo==='producto');
+  const vendidoHoy = ventasProd.reduce((s,c)=>s+c.monto,0);
+  const udsHoy = ventasProd.length;
+  let ganancia = 0;
+  ventasProd.forEach(c=>{
+    const p = productos.find(x=>x.id===c.productoId);
+    if(p) ganancia += (p.precio - p.costo);
+  });
+  document.getElementById('pcHoy').innerHTML = `$${vendidoHoy.toFixed(0)} <small>(${udsHoy} uds)</small>`;
+  document.getElementById('pcHoyUds').textContent = `(${udsHoy} uds)`;
+  document.getElementById('pcGanancia').textContent = '$'+ganancia.toFixed(0);
+  document.getElementById('pcSemana').textContent = '$'+(DEMO_TOTAL_SEMANA+vendidoHoy).toFixed(0);
+  document.getElementById('pcMes').textContent = '$'+(DEMO_TOTAL_MES+vendidoHoy).toFixed(0);
+
+  // Gráfico más vendidos (real)
+  const ranking = productos.map(p=>({nombre:p.nombre, uds:vendidasHoy(p.id)}))
+    .filter(r=>r.uds>0).sort((a,b)=>b.uds-a.uds);
+  const contGraf = document.getElementById('graficoMas');
+  if(!ranking.length){
+    contGraf.innerHTML = '<div class="vacio">Vende productos para ver el ranking</div>';
+  } else {
+    const max = ranking[0].uds;
+    contGraf.innerHTML = ranking.map(r=>`
+      <div class="barra-fila"><div class="nom">${r.nombre}</div>
+        <div class="barra-track"><div class="barra-fill prod" style="width:${(r.uds/max*100)}%">${r.uds}</div></div>
+      </div>`).join('');
+  }
+
+  // Gráfico semana (demo)
+  const maxSem = Math.max(...DEMO_SEMANA.map(d=>d.monto));
+  document.getElementById('graficoSemana').innerHTML = DEMO_SEMANA.map(d=>`
+    <div class="barra-fila"><div class="nom">${d.dia}</div>
+      <div class="barra-track"><div class="barra-fill" style="width:${(d.monto/maxSem*100)}%">$${d.monto}</div></div>
+    </div>`).join('');
+}
+
 // ===== Cobro =====
 function elegirTipo(t){
   tipoCobroSel = t;
   document.getElementById('btnServicio').classList.toggle('activo', t==='servicio');
   document.getElementById('btnProducto').classList.toggle('activo', t==='producto');
   document.getElementById('lblMonto').textContent = t==='servicio'?'Monto del servicio ($)':'Monto del producto ($)';
+  document.getElementById('bloqueProducto').style.display = t==='producto'?'block':'none';
+  if(t==='producto'){ renderSelProducto(); } else { document.getElementById('inMonto').value=''; }
 }
 function elegirMetodo(m){
   metodoPagoSel = m;
@@ -381,13 +596,32 @@ function registrarCobro(){
   const barberoId = parseInt(document.getElementById('selBarbero').value);
   const monto = parseFloat(document.getElementById('inMonto').value);
   if(!monto || monto<=0){ alert('Escribe un monto válido'); return; }
-  cobros.push({ id:cont++, barberoId, tipo:tipoCobroSel, monto, metodo:metodoPagoSel });
-  document.getElementById('inMonto').value='';
-  renderTodo();
-}
-function quitarCobro(id){ cobros = cobros.filter(c=>c.id!==id); renderTodo(); }
 
-// ===== Motor de nómina =====
+  let productoId = null;
+  if(tipoCobroSel==='producto'){
+    productoId = parseInt(document.getElementById('selProducto').value);
+    const p = productos.find(x=>x.id===productoId);
+    if(!p){ alert('Elige un producto del inventario (o agrégalo en la pestaña Productos)'); return; }
+    if(p.stock<=0){ alert('Ese producto no tiene stock disponible'); return; }
+    p.stock--; // descuenta 1 unidad
+  }
+
+  cobros.push({ id:cont++, barberoId, tipo:tipoCobroSel, monto, metodo:metodoPagoSel, productoId });
+  document.getElementById('inMonto').value='';
+  renderTodo(); renderProductos(); renderSelProducto();
+}
+function quitarCobro(id){
+  const c = cobros.find(x=>x.id===id);
+  // devolver stock si era producto
+  if(c && c.tipo==='producto' && c.productoId!=null){
+    const p = productos.find(x=>x.id===c.productoId);
+    if(p) p.stock++;
+  }
+  cobros = cobros.filter(x=>x.id!==id);
+  renderTodo(); renderProductos(); renderSelProducto();
+}
+
+// ===== Nómina =====
 function calcularNomina(b){
   const mios = cobros.filter(c=>c.barberoId===b.id);
   const servMonto = mios.filter(c=>c.tipo==='servicio').reduce((s,c)=>s+c.monto,0);
@@ -413,7 +647,7 @@ function calcularNomina(b){
   return { comServicio, baseLabel, comProducto, prodLabel, total:comServicio+comProducto };
 }
 
-// ===== Render principal (cobros + resumen + nómina) =====
+// ===== Render principal =====
 function renderTodo(){
   document.getElementById('contCobros').textContent = cobros.length;
   const listaC = document.getElementById('listaCobros');
@@ -423,7 +657,11 @@ function renderTodo(){
     listaC.innerHTML = cobros.slice().reverse().map(c=>{
       const b = barberos.find(x=>x.id===c.barberoId);
       const nombreB = b?b.nombre:'(?)';
-      const tipoTxt = c.tipo==='servicio'?'Servicio':'Producto';
+      let tipoTxt = c.tipo==='servicio'?'Servicio':'Producto';
+      if(c.tipo==='producto' && c.productoId!=null){
+        const p = productos.find(x=>x.id===c.productoId);
+        if(p) tipoTxt = 'Producto: '+p.nombre;
+      }
       const metClase = c.metodo==='efectivo'?'efectivo':'tarjeta';
       const metTxt = c.metodo==='efectivo'?'Efectivo':'Tarjeta';
       return `<div class="cobro-item">
@@ -436,11 +674,12 @@ function renderTodo(){
   const prod = cobros.reduce((s,c)=>s+c.monto,0);
   const efe = cobros.filter(c=>c.metodo==='efectivo').reduce((s,c)=>s+c.monto,0);
   const tar = cobros.filter(c=>c.metodo==='tarjeta').reduce((s,c)=>s+c.monto,0);
-  const prd = cobros.filter(c=>c.tipo==='producto').reduce((s,c)=>s+c.monto,0);
+  const ventasProd = cobros.filter(c=>c.tipo==='producto');
+  const prd = ventasProd.reduce((s,c)=>s+c.monto,0);
   document.getElementById('rProduccion').textContent = '$'+prod.toFixed(0);
   document.getElementById('rEfectivo').textContent = '$'+efe.toFixed(0);
   document.getElementById('rTarjeta').textContent = '$'+tar.toFixed(0);
-  document.getElementById('rProducto').textContent = '$'+prd.toFixed(0);
+  document.getElementById('rProducto').innerHTML = `$${prd.toFixed(0)} <small>(${ventasProd.length} uds)</small>`;
 
   const contN = document.getElementById('nominaContenedor');
   const cierre = document.getElementById('cierreDia');
@@ -474,12 +713,10 @@ function renderAgenda(){
   const scroll = document.getElementById('agendaScroll');
   if(!barberos.length){ vacia.style.display='block'; scroll.style.display='none'; return; }
   vacia.style.display='none'; scroll.style.display='block';
-
   const tabla = document.getElementById('tablaAgenda');
   let html = '<thead><tr><th class="hora-col">Hora</th>';
   barberos.forEach(b=> html += `<th>${b.nombre}</th>`);
   html += '</tr></thead><tbody>';
-
   HORAS.forEach(h=>{
     html += `<tr><td class="hora-col">${h.label}</td>`;
     barberos.forEach(b=>{
@@ -522,7 +759,7 @@ function borrarCita(id){ citas = citas.filter(c=>c.id!==id); renderAgenda(); }
 function cerrarModal(){ document.getElementById('modalAgenda').classList.remove('abierto'); }
 
 // ===== Inicio =====
-renderBarberos(); renderSelBarbero(); renderTodo();
+renderBarberos(); renderSelBarbero(); renderTodo(); renderProductos(); renderSelProducto();
 </script>
 </body>
 </html>
