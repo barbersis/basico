@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Universal — Cobro + Nómina (Capa 2)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --txt:#e7e9ee; --sub:#9aa2b1; --accent:#4f8cff; --ok:#3ecf8e; --warn:#ffb454; --bad:#ff5c5c;
+    --efectivo:#3ecf8e; --tarjeta:#4f8cff; --transfer:#c98fff;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);}
+  header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  header h1{margin:0;font-size:18px;}
+  header .fecha{color:var(--sub);font-size:13px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:860px){.grid{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px;}
+  .card h2{margin:0 0 12px;font-size:14px;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;}
+  label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px;}
+  input,select{width:100%;padding:8px 10px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:14px;}
+  .row{display:flex;gap:10px;}
+  .row > *{flex:1;}
+  button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;}
+  .btn-primary{background:var(--accent);color:#fff;width:100%;margin-top:14px;}
+  .btn-chico{background:var(--panel2);color:var(--txt);border:1px solid var(--border);}
+  .btn-quitar{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:4px 9px;font-size:11px;}
+  .toggle-fila{display:flex;gap:8px;margin-top:4px;}
+  .toggle-fila button{flex:1;background:var(--panel2);color:var(--sub);border:1px solid var(--border);}
+  .toggle-fila button.activo{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .met-fila button.activo.efectivo{background:var(--efectivo);border-color:var(--efectivo);color:#06281a;}
+  .met-fila button.activo.tarjeta{background:var(--tarjeta);border-color:var(--tarjeta);color:#fff;}
+  .met-fila button.activo.transfer{background:var(--transfer);border-color:var(--transfer);color:#25103a;}
+  .lista-barberos{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .fila-barbero{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;}
+  .chip{display:inline-block;background:#26304a;color:#8fb4ff;border-radius:6px;padding:2px 7px;font-size:11px;margin-left:6px;}
+  .chip.fijo{background:#2a2530;color:#d6a6ff;}
+  .lista-cobros{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .cobro-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .cobro-item .meta{color:var(--sub);}
+  .punto{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  .punto.efectivo{background:var(--efectivo);}
+  .punto.tarjeta{background:var(--tarjeta);}
+  .punto.transfer{background:var(--transfer);}
+  .cards-resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+  .mini-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .mini-card .lbl{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;}
+  .mini-card .val{font-size:22px;font-weight:700;margin-top:4px;}
+  .mini-card.efectivo .val{color:var(--efectivo);}
+  .mini-card.tarjeta .val{color:var(--tarjeta);}
+  .mini-card.transfer .val{color:var(--transfer);}
+  .panel-nomina{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .panel-nomina .nombre{font-weight:700;font-size:15px;margin-bottom:6px;}
+  .panel-nomina .linea{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
+  .panel-nomina .linea.total{font-weight:700;border-top:1px solid var(--border);margin-top:6px;padding-top:8px;font-size:15px;color:var(--ok);}
+  .panel-nomina .sub{color:var(--sub);font-size:11px;margin:-1px 0 3px;}
+  .vacio{color:var(--sub);font-size:13px;text-align:center;padding:20px 0;}
+  .nota{background:#1b2230;border:1px solid #2a3550;border-radius:8px;padding:10px 12px;font-size:12px;color:#9db3d9;margin-top:6px;}
+  .seccion-final{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:4px;}
+  .seccion-final .linea{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
+  .seccion-final .linea.grande{font-weight:700;font-size:16px;border-top:1px solid var(--border);margin-top:6px;padding-top:10px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>💈 Sistema Universal — Cobro + Nómina</h1>
+  <span class="fecha" id="fechaHoy"></span>
+</header>
+
+<div class="wrap">
+  <!-- Resumen del día arriba -->
+  <div class="cards-resumen">
+    <div class="mini-card"><div class="lbl">Producción del día</div><div class="val" id="rProduccion">$0</div></div>
+    <div class="mini-card efectivo"><div class="lbl">Efectivo</div><div class="val" id="rEfectivo">$0</div></div>
+    <div class="mini-card tarjeta"><div class="lbl">Tarjeta</div><div class="val" id="rTarjeta">$0</div></div>
+    <div class="mini-card transfer"><div class="lbl">Transferencia</div><div class="val" id="rTransfer">$0</div></div>
+    <div class="mini-card"><div class="lbl">Cobros</div><div class="val" id="rCobros">0</div></div>
+  </div>
+
+  <div class="grid">
+    <!-- IZQUIERDA -->
+    <div>
+      <!-- Cobro -->
+      <div class="card">
+        <h2>Cobrar</h2>
+        <label>Barbero</label>
+        <select id="selBarbero"></select>
+
+        <label>¿Qué se cobra?</label>
+        <div class="toggle-fila">
+          <button type="button" id="btnServicio" class="activo" onclick="elegirTipo('servicio')">Servicio</button>
+          <button type="button" id="btnProducto" onclick="elegirTipo('producto')">Producto</button>
+        </div>
+
+        <label id="lblMonto">Monto del servicio ($)</label>
+        <input id="inMonto" type="number" placeholder="Ej. 250" inputmode="numeric">
+
+        <label>Método de pago</label>
+        <div class="toggle-fila met-fila">
+          <button type="button" id="btnEfectivo" class="activo efectivo" onclick="elegirMetodo('efectivo')">Efectivo</button>
+          <button type="button" id="btnTarjeta" class="tarjeta" onclick="elegirMetodo('tarjeta')">Tarjeta</button>
+          <button type="button" id="btnTransfer" class="transfer" onclick="elegirMetodo('transferencia')">Transferencia</button>
+        </div>
+
+        <button class="btn-primary" onclick="registrarCobro()">Cobrar</button>
+      </div>
+
+      <!-- Cobros del día -->
+      <div class="card">
+        <h2>Cobros de hoy (<span id="contCobros">0</span>)</h2>
+        <div class="lista-cobros" id="listaCobros">
+          <div class="vacio">Aún no hay cobros</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DERECHA -->
+    <div>
+      <!-- Nómina en vivo -->
+      <div class="card">
+        <h2>Nómina en vivo</h2>
+        <div id="nominaContenedor"><div class="vacio">Agrega barberos y empieza a cobrar</div></div>
+        <div class="seccion-final" id="cierreDia" style="display:none;">
+          <div class="linea"><span>Producción del día</span><span id="cProduccion">$0</span></div>
+          <div class="linea"><span>− Total nómina barberos</span><span id="cNomina">$0</span></div>
+          <div class="linea grande"><span>Queda para el negocio</span><span id="cNegocio">$0</span></div>
+          <div class="nota" style="margin-top:10px;">Cálculo simple para prueba: Producción − lo que se llevan los barberos. Aquí luego entran gastos, tarjeta neta, etc.</div>
+        </div>
+      </div>
+
+      <!-- Alta de barberos -->
+      <div class="card">
+        <h2>Barberos</h2>
+        <label>Nombre</label>
+        <input id="inNombre" placeholder="Ej. Antony">
+
+        <label>Método de pago</label>
+        <div class="toggle-fila">
+          <button type="button" id="btnMetPct" class="activo" onclick="elegirMetodoBarbero('porcentaje')">% Porcentaje</button>
+          <button type="button" id="btnMetFijo" onclick="elegirMetodoBarbero('fijo')">Sueldo fijo</button>
+        </div>
+
+        <div id="campoPorcentaje">
+          <label>Porcentaje sobre servicios (%)</label>
+          <input id="inPorcentaje" type="number" value="50" min="0" max="100">
+        </div>
+        <div id="campoFijo" style="display:none;">
+          <label>Sueldo fijo SEMANAL ($)</label>
+          <input id="inFijo" type="number" value="1800" min="0">
+        </div>
+
+        <label>Comisión por venta de producto</label>
+        <div class="row">
+          <select id="inTipoComProd">
+            <option value="porcentaje">% del producto</option>
+            <option value="monto">Monto fijo $</option>
+          </select>
+          <input id="inComProd" type="number" value="10" min="0">
+        </div>
+
+        <button class="btn-primary" onclick="agregarBarbero()">+ Agregar barbero</button>
+        <div class="lista-barberos" id="listaBarberos"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Estado en memoria =====
+let barberos = [];  // {id, nombre, metodo, porcentaje, sueldoFijo, tipoComProd, comProd}
+let cobros = [];    // {id, barberoId, tipo:'servicio'|'producto', monto, metodo}
+let metodoBarberoSel = 'porcentaje';
+let tipoCobroSel = 'servicio';
+let metodoPagoSel = 'efectivo';
+let cont = 1;
+
+// ===== Fecha =====
+document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// ===== Alta de barberos =====
+function elegirMetodoBarbero(m){
+  metodoBarberoSel = m;
+  document.getElementById('btnMetPct').classList.toggle('activo', m==='porcentaje');
+  document.getElementById('btnMetFijo').classList.toggle('activo', m==='fijo');
+  document.getElementById('campoPorcentaje').style.display = m==='porcentaje' ? 'block':'none';
+  document.getElementById('campoFijo').style.display = m==='fijo' ? 'block':'none';
+}
+function agregarBarbero(){
+  const nombre = document.getElementById('inNombre').value.trim();
+  if(!nombre){ alert('Escribe un nombre'); return; }
+  barberos.push({
+    id: cont++,
+    nombre,
+    metodo: metodoBarberoSel,
+    porcentaje: parseFloat(document.getElementById('inPorcentaje').value)||0,
+    sueldoFijo: parseFloat(document.getElementById('inFijo').value)||0,
+    tipoComProd: document.getElementById('inTipoComProd').value,
+    comProd: parseFloat(document.getElementById('inComProd').value)||0
+  });
+  document.getElementById('inNombre').value='';
+  renderBarberos(); renderSelBarbero(); renderTodo();
+}
+function quitarBarbero(id){
+  if(cobros.some(c=>c.barberoId===id)){
+    if(!confirm('Este barbero ya tiene cobros hoy. ¿Quitarlo y borrar sus cobros?')) return;
+  }
+  barberos = barberos.filter(b=>b.id!==id);
+  cobros = cobros.filter(c=>c.barberoId!==id);
+  renderBarberos(); renderSelBarbero(); renderTodo();
+}
+function renderBarberos(){
+  const cont = document.getElementById('listaBarberos');
+  if(!barberos.length){ cont.innerHTML='<div class="vacio">Sin barberos aún</div>'; return; }
+  cont.innerHTML = barberos.map(b=>{
+    const met = b.metodo==='porcentaje'
+      ? `<span class="chip">${b.porcentaje}% servicio</span>`
+      : `<span class="chip fijo">$${b.sueldoFijo}/sem</span>`;
+    const prod = b.tipoComProd==='porcentaje'
+      ? `<span class="chip">${b.comProd}% prod</span>`
+      : `<span class="chip">$${b.comProd}/prod</span>`;
+    return `<div class="fila-barbero"><div><b>${b.nombre}</b> ${met} ${prod}</div>
+      <button class="btn-quitar" onclick="quitarBarbero(${b.id})">Quitar</button></div>`;
+  }).join('');
+}
+function renderSelBarbero(){
+  document.getElementById('selBarbero').innerHTML =
+    barberos.map(b=>`<option value="${b.id}">${b.nombre}</option>`).join('');
+}
+
+// ===== Cobro =====
+function elegirTipo(t){
+  tipoCobroSel = t;
+  document.getElementById('btnServicio').classList.toggle('activo', t==='servicio');
+  document.getElementById('btnProducto').classList.toggle('activo', t==='producto');
+  document.getElementById('lblMonto').textContent = t==='servicio' ? 'Monto del servicio ($)' : 'Monto del producto ($)';
+}
+function elegirMetodo(m){
+  metodoPagoSel = m;
+  [['efectivo','btnEfectivo'],['tarjeta','btnTarjeta'],['transferencia','btnTransfer']].forEach(([met,id])=>{
+    document.getElementById(id).classList.toggle('activo', met===m);
+  });
+}
+function registrarCobro(){
+  if(!barberos.length){ alert('Agrega al menos un barbero primero'); return; }
+  const barberoId = parseInt(document.getElementById('selBarbero').value);
+  const monto = parseFloat(document.getElementById('inMonto').value);
+  if(!monto || monto<=0){ alert('Escribe un monto válido'); return; }
+  cobros.push({ id:cont++, barberoId, tipo:tipoCobroSel, monto, metodo:metodoPagoSel });
+  document.getElementById('inMonto').value='';
+  renderTodo();
+}
+function quitarCobro(id){
+  cobros = cobros.filter(c=>c.id!==id);
+  renderTodo();
+}
+
+// ===== Motor de nómina =====
+function calcularNomina(b){
+  const mios = cobros.filter(c=>c.barberoId===b.id);
+  const servMonto = mios.filter(c=>c.tipo==='servicio').reduce((s,c)=>s+c.monto,0);
+  const prodMonto = mios.filter(c=>c.tipo==='producto').reduce((s,c)=>s+c.monto,0);
+  const numProd   = mios.filter(c=>c.tipo==='producto').length;
+
+  let comServicio=0, baseLabel='';
+  if(b.metodo==='porcentaje'){
+    comServicio = servMonto * (b.porcentaje/100);
+    baseLabel = `${b.porcentaje}% de $${servMonto.toFixed(0)} en servicios`;
+  } else {
+    comServicio = b.sueldoFijo;
+    baseLabel = `Sueldo fijo semanal (no cambia por producción del día)`;
+  }
+
+  let comProducto=0, prodLabel='';
+  if(b.tipoComProd==='porcentaje'){
+    comProducto = prodMonto * (b.comProd/100);
+    prodLabel = `${b.comProd}% de $${prodMonto.toFixed(0)} en producto (${numProd})`;
+  } else {
+    comProducto = numProd * b.comProd;
+    prodLabel = `$${b.comProd} × ${numProd} producto${numProd===1?'':'s'}`;
+  }
+
+  return { comServicio, baseLabel, comProducto, prodLabel, total: comServicio+comProducto };
+}
+
+// ===== Render principal =====
+function renderTodo(){
+  // Cobros
+  document.getElementById('contCobros').textContent = cobros.length;
+  document.getElementById('rCobros').textContent = cobros.length;
+  const listaC = document.getElementById('listaCobros');
+  if(!cobros.length){
+    listaC.innerHTML='<div class="vacio">Aún no hay cobros</div>';
+  } else {
+    listaC.innerHTML = cobros.slice().reverse().map(c=>{
+      const b = barberos.find(x=>x.id===c.barberoId);
+      const nombreB = b? b.nombre : '(?)';
+      const tipoTxt = c.tipo==='servicio'?'Servicio':'Producto';
+      const metClase = c.metodo==='efectivo'?'efectivo':(c.metodo==='tarjeta'?'tarjeta':'transfer');
+      const metTxt = c.metodo.charAt(0).toUpperCase()+c.metodo.slice(1);
+      return `<div class="cobro-item">
+        <span><span class="punto ${metClase}"></span><b>${nombreB}</b>
+          <span class="meta">· ${tipoTxt} · ${metTxt} · $${c.monto}</span></span>
+        <button class="btn-quitar" onclick="quitarCobro(${c.id})">×</button></div>`;
+    }).join('');
+  }
+
+  // Resumen del día
+  const prod = cobros.reduce((s,c)=>s+c.monto,0);
+  const efe = cobros.filter(c=>c.metodo==='efectivo').reduce((s,c)=>s+c.monto,0);
+  const tar = cobros.filter(c=>c.metodo==='tarjeta').reduce((s,c)=>s+c.monto,0);
+  const tra = cobros.filter(c=>c.metodo==='transferencia').reduce((s,c)=>s+c.monto,0);
+  document.getElementById('rProduccion').textContent = '$'+prod.toFixed(0);
+  document.getElementById('rEfectivo').textContent = '$'+efe.toFixed(0);
+  document.getElementById('rTarjeta').textContent = '$'+tar.toFixed(0);
+  document.getElementById('rTransfer').textContent = '$'+tra.toFixed(0);
+
+  // Nómina
+  const contN = document.getElementById('nominaContenedor');
+  const cierre = document.getElementById('cierreDia');
+  if(!barberos.length){
+    contN.innerHTML='<div class="vacio">Agrega barberos y empieza a cobrar</div>';
+    cierre.style.display='none';
+    return;
+  }
+  let totalNomina=0;
+  contN.innerHTML = barberos.map(b=>{
+    const r = calcularNomina(b);
+    totalNomina += r.total;
+    const metTxt = b.metodo==='porcentaje'?'Porcentaje':'Sueldo fijo semanal';
+    return `<div class="panel-nomina">
+      <div class="nombre">${b.nombre} <span class="sub">(${metTxt})</span></div>
+      <div class="linea"><span>Comisión por servicio</span><span>$${r.comServicio.toFixed(2)}</span></div>
+      <div class="sub">${r.baseLabel}</div>
+      <div class="linea"><span>+ Comisión por producto</span><span>$${r.comProducto.toFixed(2)}</span></div>
+      <div class="sub">${r.prodLabel}</div>
+      <div class="linea total"><span>Total a pagar</span><span>$${r.total.toFixed(2)}</span></div>
+    </div>`;
+  }).join('');
+
+  // Cierre del día
+  cierre.style.display='block';
+  document.getElementById('cProduccion').textContent = '$'+prod.toFixed(2);
+  document.getElementById('cNomina').textContent = '$'+totalNomina.toFixed(2);
+  document.getElementById('cNegocio').textContent = '$'+(prod-totalNomina).toFixed(2);
+}
+
+// Estado inicial
+renderBarberos(); renderSelBarbero(); renderTodo();
+</script>
+</body>
+</html>
