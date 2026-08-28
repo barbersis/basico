@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Universal — Barbería</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --txt:#e7e9ee; --sub:#9aa2b1; --accent:#4f8cff; --ok:#3ecf8e; --warn:#ffb454; --bad:#ff5c5c;
+    --efectivo:#3ecf8e; --tarjeta:#4f8cff; --prod:#ffb454;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);}
+  header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  header h1{margin:0;font-size:18px;}
+  header .fecha{color:var(--sub);font-size:13px;}
+  .tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);flex-wrap:wrap;}
+  .tab{padding:12px 18px;font-size:14px;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;}
+  .tab.activa{color:var(--txt);border-bottom-color:var(--accent);}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px;}
+  .pagina{display:none;}
+  .pagina.activa{display:block;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:860px){.grid{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px;}
+  .card h2{margin:0 0 12px;font-size:14px;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;}
+  .card h2 .demo-tag{background:#3a2f1f;color:var(--warn);border-radius:5px;padding:2px 7px;font-size:10px;margin-left:8px;letter-spacing:0;text-transform:none;}
+  label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px;}
+  input,select{width:100%;padding:8px 10px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:14px;}
+  .row{display:flex;gap:10px;}
+  .row > *{flex:1;}
+  button{cursor:pointer;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;}
+  .btn-primary{background:var(--accent);color:#fff;width:100%;margin-top:14px;}
+  .btn-sec{background:var(--panel2);color:var(--txt);border:1px solid var(--border);width:100%;margin-top:8px;}
+  .btn-quitar{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:4px 9px;font-size:11px;}
+  .btn-editar{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:4px 9px;font-size:11px;margin-right:6px;}
+  .toggle-fila{display:flex;gap:8px;margin-top:4px;}
+  .toggle-fila button{flex:1;background:var(--panel2);color:var(--sub);border:1px solid var(--border);}
+  .toggle-fila button.activo{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .met-fila button.activo.efectivo{background:var(--efectivo);border-color:var(--efectivo);color:#06281a;}
+  .met-fila button.activo.tarjeta{background:var(--tarjeta);border-color:var(--tarjeta);color:#fff;}
+  .lista-barberos{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .fila-barbero{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;gap:8px;}
+  .fila-barbero .acciones{display:flex;flex-shrink:0;}
+  .chip{display:inline-block;background:#26304a;color:#8fb4ff;border-radius:6px;padding:2px 7px;font-size:11px;margin-left:6px;}
+  .chip.fijo{background:#2a2530;color:#d6a6ff;}
+  .chip.stock{background:#1f3a2e;color:#9ff0c4;}
+  .chip.stock.bajo{background:#3a1f1f;color:#ff9f9f;}
+  .lista-cobros{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .cobro-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .cobro-item .meta{color:var(--sub);}
+  .punto{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  .punto.efectivo{background:var(--efectivo);}
+  .punto.tarjeta{background:var(--tarjeta);}
+  .cards-resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+  .mini-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .mini-card .lbl{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;}
+  .mini-card .val{font-size:22px;font-weight:700;margin-top:4px;}
+  .mini-card .val small{font-size:12px;color:var(--sub);font-weight:500;}
+  .mini-card.efectivo .val{color:var(--efectivo);}
+  .mini-card.tarjeta .val{color:var(--tarjeta);}
+  .mini-card.producto .val{color:var(--prod);}
+  .panel-nomina{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .panel-nomina .nombre{font-weight:700;font-size:15px;margin-bottom:6px;}
+  .panel-nomina .linea{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
+  .panel-nomina .linea.total{font-weight:700;border-top:1px solid var(--border);margin-top:6px;padding-top:8px;font-size:15px;color:var(--ok);}
+  .panel-nomina .sub{color:var(--sub);font-size:11px;margin:-1px 0 3px;}
+  .nomina-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+  .vacio{color:var(--sub);font-size:13px;text-align:center;padding:20px 0;}
+  .nota{background:#1b2230;border:1px solid #2a3550;border-radius:8px;padding:10px 12px;font-size:12px;color:#9db3d9;margin-top:6px;}
+  .seccion-final{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:4px;}
+  .seccion-final .linea{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
+  .seccion-final .linea.grande{font-weight:700;font-size:16px;border-top:1px solid var(--border);margin-top:6px;padding-top:10px;}
+  /* Agenda */
+  .agenda-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  table.agenda{border-collapse:collapse;width:100%;min-width:520px;}
+  table.agenda th,table.agenda td{border:1px solid var(--border);padding:0;text-align:center;}
+  table.agenda th{background:var(--panel2);font-size:12px;padding:8px 6px;position:sticky;top:0;color:var(--txt);}
+  table.agenda th.hora-col,table.agenda td.hora-col{background:var(--panel2);font-size:11px;color:var(--sub);width:64px;min-width:64px;padding:4px 6px;font-weight:600;position:sticky;left:0;z-index:1;}
+  .celda{min-height:34px;height:34px;cursor:pointer;font-size:11px;position:relative;transition:background .1s;}
+  .celda:hover{background:#20293a;}
+  .cita{background:#26304a;border-radius:5px;margin:2px;padding:3px 5px;font-size:10.5px;line-height:1.25;text-align:left;color:#cfe0ff;height:calc(100% - 4px);display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+  .cita.corte{background:#1f3a2e;color:#9ff0c4;}
+  .cita.barba{background:#3a2f1f;color:#f0d49f;}
+  .cita.otro{background:#33283f;color:#e0bcff;}
+  .cita b{font-weight:700;}
+  .cita .x{position:absolute;top:1px;right:3px;color:#ff8f8f;font-size:12px;font-weight:700;}
+  .modal-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:16px;}
+  .modal-fondo.abierto{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:360px;}
+  .modal h3{margin:0 0 6px;font-size:16px;}
+  .modal .sub{color:var(--sub);font-size:13px;margin-bottom:8px;}
+  /* Tabla inventario */
+  .tabla-inv{width:100%;border-collapse:collapse;font-size:13px;}
+  .tabla-inv th{text-align:left;color:var(--sub);font-size:11px;text-transform:uppercase;letter-spacing:.03em;padding:6px 8px;border-bottom:1px solid var(--border);}
+  .tabla-inv td{padding:8px;border-bottom:1px solid var(--border);}
+  .tabla-inv tr:last-child td{border-bottom:none;}
+  .tabla-inv .acciones-inv{text-align:right;white-space:nowrap;}
+  /* Barras gráfico */
+  .barra-fila{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;}
+  .barra-fila .nom{width:110px;flex-shrink:0;text-align:right;color:var(--sub);}
+  .barra-track{flex:1;background:var(--panel2);border-radius:6px;height:22px;overflow:hidden;position:relative;}
+  .barra-fill{height:100%;background:linear-gradient(90deg,#4f8cff,#6ba3ff);border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;min-width:2px;transition:width .3s;}
+  .barra-fill.prod{background:linear-gradient(90deg,#ffb454,#ffca7a);color:#3a2600;}
+  .dos-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:720px){.dos-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>💈 Sistema Universal — Barbería</h1>
+  <span class="fecha" id="fechaHoy"></span>
+</header>
+
+<div class="tabs">
+  <button class="tab activa" onclick="irA('cobro',this)">Cobro</button>
+  <button class="tab" onclick="irA('barberos',this)">Barberos</button>
+  <button class="tab" onclick="irA('productos',this)">Productos</button>
+  <button class="tab" onclick="irA('agenda',this)">Agenda</button>
+</div>
+
+<!-- ============ COBRO ============ -->
+<div class="pagina activa" id="pag-cobro">
+  <div class="wrap">
+    <div class="cards-resumen">
+      <div class="mini-card"><div class="lbl">Producción del día</div><div class="val" id="rProduccion">$0</div></div>
+      <div class="mini-card efectivo"><div class="lbl">Efectivo</div><div class="val" id="rEfectivo">$0</div></div>
+      <div class="mini-card tarjeta"><div class="lbl">Tarjeta</div><div class="val" id="rTarjeta">$0</div></div>
+      <div class="mini-card producto"><div class="lbl">Productos</div><div class="val" id="rProducto">$0 <small id="rProductoUds">(0 uds)</small></div></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Cobrar</h2>
+          <label>Barbero</label>
+          <select id="selBarbero"></select>
+
+          <label>¿Qué se cobra?</label>
+          <div class="toggle-fila">
+            <button type="button" id="btnServicio" class="activo" onclick="elegirTipo('servicio')">Servicio</button>
+            <button type="button" id="btnProducto" onclick="elegirTipo('producto')">Producto</button>
+          </div>
+
+          <!-- Selector de producto (solo visible en modo producto) -->
+          <div id="bloqueProducto" style="display:none;">
+            <label>Producto disponible</label>
+            <select id="selProducto" onchange="alElegirProducto()"></select>
+          </div>
+
+          <label id="lblMonto">Monto del servicio ($)</label>
+          <input id="inMonto" type="number" placeholder="Ej. 250" inputmode="numeric">
+
+          <label>Método de pago</label>
+          <div class="toggle-fila met-fila">
+            <button type="button" id="btnEfectivo" class="activo efectivo" onclick="elegirMetodo('efectivo')">Efectivo</button>
+            <button type="button" id="btnTarjeta" class="tarjeta" onclick="elegirMetodo('tarjeta')">Tarjeta</button>
+          </div>
+
+          <button class="btn-primary" onclick="registrarCobro()">Cobrar</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>Cobros de hoy (<span id="contCobros">0</span>)</h2>
+          <div class="lista-cobros" id="listaCobros"><div class="vacio">Aún no hay cobros</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BARBEROS ============ -->
+<div class="pagina" id="pag-barberos">
+  <div class="wrap">
+    <div class="card">
+      <h2>Nómina acumulada de la semana <span class="demo-tag">6 días previos + hoy</span></h2>
+      <div class="nomina-grid" id="nominaSemanaContenedor"></div>
+    </div>
+
+    <div class="card">
+      <h2>Nómina del día (hoy)</h2>
+      <div class="nomina-grid" id="nominaContenedor"><div class="vacio">Agrega barberos abajo para empezar</div></div>
+      <div class="seccion-final" id="cierreDia" style="display:none;margin-top:14px;">
+        <div class="linea"><span>Producción del día</span><span id="cProduccion">$0</span></div>
+        <div class="linea"><span>− Total nómina barberos</span><span id="cNomina">$0</span></div>
+        <div class="linea grande"><span>Queda para el negocio</span><span id="cNegocio">$0</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="tituloGestor">Agregar barbero</h2>
+      <label>Nombre</label>
+      <input id="inNombre" placeholder="Ej. Antony">
+      <label>Método de pago</label>
+      <div class="toggle-fila">
+        <button type="button" id="btnMetPct" class="activo" onclick="elegirMetodoBarbero('porcentaje')">% Porcentaje</button>
+        <button type="button" id="btnMetFijo" onclick="elegirMetodoBarbero('fijo')">Sueldo fijo</button>
+      </div>
+      <div id="campoPorcentaje">
+        <label>Porcentaje sobre servicios (%)</label>
+        <input id="inPorcentaje" type="number" value="50" min="0" max="100">
+      </div>
+      <div id="campoFijo" style="display:none;">
+        <label>Sueldo fijo SEMANAL ($)</label>
+        <input id="inFijo" type="number" value="1800" min="0">
+      </div>
+      <label>Comisión por venta de producto</label>
+      <div class="row">
+        <select id="inTipoComProd">
+          <option value="porcentaje">% del producto</option>
+          <option value="monto">Monto fijo $</option>
+        </select>
+        <input id="inComProd" type="number" value="10" min="0">
+      </div>
+      <button class="btn-primary" id="btnGuardarBarbero" onclick="guardarBarbero()">+ Agregar barbero</button>
+      <button class="btn-sec" id="btnCancelarEdicion" style="display:none;" onclick="cancelarEdicion()">Cancelar edición</button>
+      <div class="lista-barberos" id="listaBarberos"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PRODUCTOS ============ -->
+<div class="pagina" id="pag-productos">
+  <div class="wrap">
+    <!-- Gestor de inventario -->
+    <div class="card">
+      <h2 id="tituloGestorProd">Agregar producto al inventario</h2>
+      <label>Nombre del producto</label>
+      <input id="inProdNombre" placeholder="Ej. Cera mate">
+      <div class="row">
+        <div>
+          <label>Costo (lo que te costó) $</label>
+          <input id="inProdCosto" type="number" value="0" min="0">
+        </div>
+        <div>
+          <label>Precio de venta $</label>
+          <input id="inProdPrecio" type="number" value="0" min="0">
+        </div>
+        <div>
+          <label>Unidades (stock)</label>
+          <input id="inProdStock" type="number" value="0" min="0">
+        </div>
+      </div>
+      <button class="btn-primary" id="btnGuardarProd" onclick="guardarProducto()">+ Agregar producto</button>
+      <button class="btn-sec" id="btnCancelarProd" style="display:none;" onclick="cancelarEdicionProd()">Cancelar edición</button>
+
+      <div style="overflow-x:auto;margin-top:16px;">
+        <table class="tabla-inv" id="tablaInventario">
+          <thead><tr><th>Producto</th><th>Costo</th><th>Precio</th><th>Stock</th><th>Vendidos hoy</th><th></th></tr></thead>
+          <tbody><tr><td colspan="6" class="vacio">Sin productos en el inventario</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Control de venta -->
+    <div class="card">
+      <h2>Control de venta de producto</h2>
+      <div class="cards-resumen">
+        <div class="mini-card producto"><div class="lbl">Vendido hoy</div><div class="val" id="pcHoy">$0 <small id="pcHoyUds">(0 uds)</small></div></div>
+        <div class="mini-card"><div class="lbl">Ganancia hoy <span style="font-size:9px;">(precio − costo)</span></div><div class="val" id="pcGanancia">$0</div></div>
+        <div class="mini-card"><div class="lbl">Semana <span style="color:var(--warn);font-size:9px;">demo</span></div><div class="val" id="pcSemana">$0</div></div>
+        <div class="mini-card"><div class="lbl">Mes <span style="color:var(--warn);font-size:9px;">demo</span></div><div class="val" id="pcMes">$0</div></div>
+        <div class="mini-card"><div class="lbl">Estimación mensual <span style="color:var(--warn);font-size:9px;">demo</span></div><div class="val" id="estimacionMes" style="color:var(--accent);">$0</div></div>
+      </div>
+
+      <div class="dos-col">
+        <div>
+          <h2 style="font-size:12px;">Más vendidos (unidades)</h2>
+          <div id="graficoMas"><div class="vacio">Vende productos para ver el ranking</div></div>
+        </div>
+        <div>
+          <h2 style="font-size:12px;">Ventas por día de la semana <span class="demo-tag">datos demo</span></h2>
+          <div id="graficoSemana"></div>
+        </div>
+      </div>
+
+      <div class="nota" style="margin-top:14px;">
+        <b>Vendido hoy / Ganancia / Más vendidos</b> son reales (de esta sesión). <b>Semana, Mes y el gráfico por día</b> usan datos de ejemplo solo para mostrar el diseño — se volverán reales al conectar la base de datos.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AGENDA ============ -->
+<div class="pagina" id="pag-agenda">
+  <div class="wrap">
+    <div class="card">
+      <h2>Agenda del día — bloques de 30 min (7:00 am – 11:30 pm)</h2>
+      <div id="agendaVacia" class="vacio">Agrega barberos en la pestaña "Barberos" para ver sus columnas aquí.</div>
+      <div class="agenda-scroll" id="agendaScroll" style="display:none;">
+        <table class="agenda" id="tablaAgenda"></table>
+      </div>
+      <div class="nota" style="margin-top:12px;">Toca una celda vacía para agendar. Toca la × de una cita para borrarla.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal agendar -->
+<div class="modal-fondo" id="modalAgenda">
+  <div class="modal">
+    <h3>Agendar cita</h3>
+    <div class="sub" id="modalInfo"></div>
+    <label>Servicio</label>
+    <div class="toggle-fila" id="modalServicios">
+      <button type="button" class="activo" onclick="elegirServicioModal('Corte',this)">Corte</button>
+      <button type="button" onclick="elegirServicioModal('Barba',this)">Barba</button>
+      <button type="button" onclick="elegirServicioModal('Otro',this)">Otro</button>
+    </div>
+    <label>Nombre del cliente (opcional)</label>
+    <input id="inNombreCliente" placeholder="Ej. Juan">
+    <button class="btn-primary" onclick="guardarCita()">Guardar cita</button>
+    <button class="btn-sec" onclick="cerrarModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ===== Estado =====
+let barberos = [];   // {id, nombre, metodo, porcentaje, sueldoFijo, tipoComProd, comProd}
+let cobros = [];     // {id, barberoId, tipo, monto, metodo, productoId?}
+let citas = [];      // {id, barberoId, hora, servicio, cliente}
+let productos = [];  // {id, nombre, costo, precio, stock}
+let metodoBarberoSel = 'porcentaje';
+let tipoCobroSel = 'servicio';
+let metodoPagoSel = 'efectivo';
+let editandoId = null;
+let editandoProdId = null;
+let cont = 1;
+let modalBarberoId = null, modalHora = null, servicioModalSel = 'Corte';
+
+/* ==========================================================================
+   DATOS PRECARGADOS — solo para esta versión de demostración.
+   Simula un negocio con ~1 semana trabajada. Al conectar Firebase esto
+   desaparece y todo sale de la base de datos real.
+   ========================================================================== */
+
+// --- 3 barberos con métodos distintos, para apreciar las dos nóminas ---
+barberos = [
+  { id:1, nombre:'Antony', metodo:'porcentaje', porcentaje:50, sueldoFijo:0,    tipoComProd:'porcentaje', comProd:10 },
+  { id:2, nombre:'Homero', metodo:'porcentaje', porcentaje:60, sueldoFijo:0,    tipoComProd:'monto',      comProd:20 },
+  { id:3, nombre:'Bruno',  metodo:'fijo',       porcentaje:0,  sueldoFijo:1800, tipoComProd:'porcentaje', comProd:15 }
+];
+
+// --- Inventario variado (distintos costos, precios y stock) ---
+productos = [
+  { id:11, nombre:'Cera mate',        costo:70,  precio:150, stock:8  },
+  { id:12, nombre:'Pomada',           costo:90,  precio:180, stock:5  },
+  { id:13, nombre:'Shampoo sólido',   costo:55,  precio:120, stock:2  },
+  { id:14, nombre:'Aceite de barba',  costo:110, precio:220, stock:6  },
+  { id:15, nombre:'Loción after',     costo:80,  precio:160, stock:1  },
+  { id:16, nombre:'Peine profesional',costo:40,  precio:90,  stock:12 }
+];
+
+// --- Cobros del DÍA de hoy (mezcla de servicios y productos, ambos métodos) ---
+cobros = [
+  { id:101, barberoId:1, tipo:'servicio', monto:250, metodo:'efectivo', productoId:null },
+  { id:102, barberoId:1, tipo:'servicio', monto:250, metodo:'tarjeta',  productoId:null },
+  { id:103, barberoId:1, tipo:'producto', monto:150, metodo:'efectivo', productoId:11 },
+  { id:104, barberoId:2, tipo:'servicio', monto:300, metodo:'tarjeta',  productoId:null },
+  { id:105, barberoId:2, tipo:'servicio', monto:180, metodo:'efectivo', productoId:null },
+  { id:106, barberoId:2, tipo:'producto', monto:180, metodo:'tarjeta',  productoId:12 },
+  { id:107, barberoId:2, tipo:'producto', monto:220, metodo:'efectivo', productoId:14 },
+  { id:108, barberoId:3, tipo:'servicio', monto:250, metodo:'efectivo', productoId:null },
+  { id:109, barberoId:3, tipo:'producto', monto:120, metodo:'efectivo', productoId:13 },
+  { id:110, barberoId:1, tipo:'producto', monto:90,  metodo:'tarjeta',  productoId:16 }
+];
+
+// --- Algunas citas en la agenda de hoy ---
+citas = [
+  { id:201, barberoId:1, hora:'10:00', servicio:'Corte', cliente:'Luis'  },
+  { id:202, barberoId:1, hora:'11:30', servicio:'Barba', cliente:'Marco' },
+  { id:203, barberoId:2, hora:'10:30', servicio:'Corte', cliente:'Diego' },
+  { id:204, barberoId:2, hora:'13:00', servicio:'Otro',  cliente:'Iván'  },
+  { id:205, barberoId:3, hora:'12:00', servicio:'Corte', cliente:'Saúl'  },
+  { id:206, barberoId:3, hora:'16:30', servicio:'Barba', cliente:''      }
+];
+
+cont = 300; // el contador de nuevos IDs arranca arriba de los precargados
+
+/* --- HISTORIAL de 6 días previos ya cerrados (para semana / mes / estimaciones) ---
+   Cada día guarda, por barbero: producción de servicios, monto de producto y
+   nº de productos; y por producto: unidades vendidas ese día.
+   Los totales del negocio se derivan de aquí, así todo cuadra entre vistas. */
+const DIAS_PREVIOS = ['Lun','Mar','Mié','Jue','Vie','Sáb'];
+const HISTORIAL = [
+  // Lun
+  { dia:'Lun', porBarbero:{1:{serv:1400,prodMonto:150,prodN:1}, 2:{serv:1680,prodMonto:200,prodN:1}, 3:{serv:0,prodMonto:120,prodN:1}},
+    porProducto:{11:1, 14:1, 13:1} },
+  // Mar
+  { dia:'Mar', porBarbero:{1:{serv:1100,prodMonto:0,prodN:0},   2:{serv:1500,prodMonto:180,prodN:1}, 3:{serv:0,prodMonto:0,prodN:0}},
+    porProducto:{12:1} },
+  // Mié
+  { dia:'Mié', porBarbero:{1:{serv:1600,prodMonto:240,prodN:2}, 2:{serv:1320,prodMonto:150,prodN:1}, 3:{serv:0,prodMonto:220,prodN:1}},
+    porProducto:{11:2, 12:1, 14:1} },
+  // Jue
+  { dia:'Jue', porBarbero:{1:{serv:900,prodMonto:90,prodN:1},   2:{serv:1800,prodMonto:180,prodN:1}, 3:{serv:0,prodMonto:0,prodN:0}},
+    porProducto:{16:1, 12:1} },
+  // Vie
+  { dia:'Vie', porBarbero:{1:{serv:2000,prodMonto:300,prodN:2}, 2:{serv:2100,prodMonto:400,prodN:2}, 3:{serv:0,prodMonto:150,prodN:1}},
+    porProducto:{11:2, 14:1, 15:1, 12:1} },
+  // Sáb
+  { dia:'Sáb', porBarbero:{1:{serv:2400,prodMonto:150,prodN:1}, 2:{serv:2500,prodMonto:360,prodN:2}, 3:{serv:0,prodMonto:120,prodN:1}},
+    porProducto:{11:1, 12:1, 14:1, 13:1} }
+];
+
+// Serie diaria de VENTA DE PRODUCTO ($) para el gráfico de semana (histórico real del demo)
+const SERIE_SEMANA = HISTORIAL.map(d=>{
+  const monto = Object.values(d.porBarbero).reduce((s,b)=>s+b.prodMonto,0);
+  return { dia:d.dia, monto };
+});
+// Unidades por producto acumuladas en los días previos (para "más vendidos" de la semana)
+const UDS_SEMANA_PREV = {};
+HISTORIAL.forEach(d=>{
+  Object.entries(d.porProducto).forEach(([pid,n])=>{
+    UDS_SEMANA_PREV[pid] = (UDS_SEMANA_PREV[pid]||0) + n;
+  });
+});
+const TOTAL_PRODUCTO_SEMANA_PREV = SERIE_SEMANA.reduce((s,d)=>s+d.monto,0);
+// El "mes" simulado = ~3.5 semanas de venta de producto previa
+const TOTAL_PRODUCTO_MES_PREV = Math.round(TOTAL_PRODUCTO_SEMANA_PREV * 3.5);
+
+document.getElementById('fechaHoy').textContent =
+  new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// Horas 7:00 am – 11:30 pm cada 30 min
+const HORAS = (()=>{
+  const arr=[];
+  for(let m=7*60; m<=23*60+30; m+=30){
+    const h=Math.floor(m/60), min=m%60;
+    const ampm = h<12?'am':'pm';
+    let h12 = h%12; if(h12===0) h12=12;
+    arr.push({ key:`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`,
+               label:`${h12}:${String(min).padStart(2,'0')} ${ampm}` });
+  }
+  return arr;
+})();
+
+// ===== Pestañas =====
+function irA(pag, btn){
+  document.querySelectorAll('.pagina').forEach(p=>p.classList.remove('activa'));
+  document.getElementById('pag-'+pag).classList.add('activa');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('activa'));
+  btn.classList.add('activa');
+  if(pag==='agenda') renderAgenda();
+  if(pag==='productos') renderProductos();
+}
+
+// ===== Gestor de barberos =====
+function elegirMetodoBarbero(m){
+  metodoBarberoSel = m;
+  document.getElementById('btnMetPct').classList.toggle('activo', m==='porcentaje');
+  document.getElementById('btnMetFijo').classList.toggle('activo', m==='fijo');
+  document.getElementById('campoPorcentaje').style.display = m==='porcentaje'?'block':'none';
+  document.getElementById('campoFijo').style.display = m==='fijo'?'block':'none';
+}
+function guardarBarbero(){
+  const nombre = document.getElementById('inNombre').value.trim();
+  if(!nombre){ alert('Escribe un nombre'); return; }
+  const datos = {
+    nombre, metodo: metodoBarberoSel,
+    porcentaje: parseFloat(document.getElementById('inPorcentaje').value)||0,
+    sueldoFijo: parseFloat(document.getElementById('inFijo').value)||0,
+    tipoComProd: document.getElementById('inTipoComProd').value,
+    comProd: parseFloat(document.getElementById('inComProd').value)||0
+  };
+  if(editandoId){
+    Object.assign(barberos.find(x=>x.id===editandoId), datos);
+    cancelarEdicion();
+  } else {
+    barberos.push({ id:cont++, ...datos });
+    limpiarForm();
+  }
+  renderBarberos(); renderSelBarbero(); renderTodo(); renderAgenda();
+}
+function editarBarbero(id){
+  const b = barberos.find(x=>x.id===id);
+  editandoId = id;
+  document.getElementById('inNombre').value = b.nombre;
+  elegirMetodoBarbero(b.metodo);
+  document.getElementById('inPorcentaje').value = b.porcentaje;
+  document.getElementById('inFijo').value = b.sueldoFijo;
+  document.getElementById('inTipoComProd').value = b.tipoComProd;
+  document.getElementById('inComProd').value = b.comProd;
+  document.getElementById('tituloGestor').textContent = 'Editando: '+b.nombre;
+  document.getElementById('btnGuardarBarbero').textContent = 'Guardar cambios';
+  document.getElementById('btnCancelarEdicion').style.display = 'block';
+  document.getElementById('pag-barberos').scrollIntoView({behavior:'smooth'});
+}
+function cancelarEdicion(){
+  editandoId = null; limpiarForm();
+  document.getElementById('tituloGestor').textContent = 'Agregar barbero';
+  document.getElementById('btnGuardarBarbero').textContent = '+ Agregar barbero';
+  document.getElementById('btnCancelarEdicion').style.display = 'none';
+}
+function limpiarForm(){
+  document.getElementById('inNombre').value='';
+  elegirMetodoBarbero('porcentaje');
+  document.getElementById('inPorcentaje').value=50;
+  document.getElementById('inFijo').value=1800;
+  document.getElementById('inTipoComProd').value='porcentaje';
+  document.getElementById('inComProd').value=10;
+}
+function quitarBarbero(id){
+  if(cobros.some(c=>c.barberoId===id)||citas.some(c=>c.barberoId===id)){
+    if(!confirm('Este barbero ya tiene cobros o citas hoy. ¿Quitarlo? Se borran sus cobros y citas.')) return;
+  }
+  barberos = barberos.filter(b=>b.id!==id);
+  cobros = cobros.filter(c=>c.barberoId!==id);
+  citas = citas.filter(c=>c.barberoId!==id);
+  if(editandoId===id) cancelarEdicion();
+  renderBarberos(); renderSelBarbero(); renderTodo(); renderAgenda();
+}
+function renderBarberos(){
+  const c = document.getElementById('listaBarberos');
+  if(!barberos.length){ c.innerHTML='<div class="vacio">Sin barberos aún</div>'; return; }
+  c.innerHTML = barberos.map(b=>{
+    const met = b.metodo==='porcentaje'
+      ? `<span class="chip">${b.porcentaje}% servicio</span>`
+      : `<span class="chip fijo">$${b.sueldoFijo}/sem</span>`;
+    const prod = b.tipoComProd==='porcentaje'
+      ? `<span class="chip">${b.comProd}% prod</span>`
+      : `<span class="chip">$${b.comProd}/prod</span>`;
+    return `<div class="fila-barbero"><div><b>${b.nombre}</b> ${met} ${prod}</div>
+      <div class="acciones">
+        <button class="btn-editar" onclick="editarBarbero(${b.id})">Editar</button>
+        <button class="btn-quitar" onclick="quitarBarbero(${b.id})">Quitar</button>
+      </div></div>`;
+  }).join('');
+}
+function renderSelBarbero(){
+  const sel = document.getElementById('selBarbero');
+  const prev = sel.value;
+  sel.innerHTML = barberos.map(b=>`<option value="${b.id}">${b.nombre}</option>`).join('');
+  if(prev && barberos.some(b=>b.id==prev)) sel.value = prev;
+}
+
+// ===== Gestor de productos (inventario) =====
+function guardarProducto(){
+  const nombre = document.getElementById('inProdNombre').value.trim();
+  if(!nombre){ alert('Escribe el nombre del producto'); return; }
+  const datos = {
+    nombre,
+    costo: parseFloat(document.getElementById('inProdCosto').value)||0,
+    precio: parseFloat(document.getElementById('inProdPrecio').value)||0,
+    stock: parseInt(document.getElementById('inProdStock').value)||0
+  };
+  if(editandoProdId){
+    Object.assign(productos.find(p=>p.id===editandoProdId), datos);
+    cancelarEdicionProd();
+  } else {
+    productos.push({ id:cont++, ...datos });
+    limpiarFormProd();
+  }
+  renderProductos(); renderSelProducto();
+}
+function editarProducto(id){
+  const p = productos.find(x=>x.id===id);
+  editandoProdId = id;
+  document.getElementById('inProdNombre').value = p.nombre;
+  document.getElementById('inProdCosto').value = p.costo;
+  document.getElementById('inProdPrecio').value = p.precio;
+  document.getElementById('inProdStock').value = p.stock;
+  document.getElementById('tituloGestorProd').textContent = 'Editando: '+p.nombre;
+  document.getElementById('btnGuardarProd').textContent = 'Guardar cambios';
+  document.getElementById('btnCancelarProd').style.display = 'block';
+}
+function cancelarEdicionProd(){
+  editandoProdId = null; limpiarFormProd();
+  document.getElementById('tituloGestorProd').textContent = 'Agregar producto al inventario';
+  document.getElementById('btnGuardarProd').textContent = '+ Agregar producto';
+  document.getElementById('btnCancelarProd').style.display = 'none';
+}
+function limpiarFormProd(){
+  document.getElementById('inProdNombre').value='';
+  document.getElementById('inProdCosto').value=0;
+  document.getElementById('inProdPrecio').value=0;
+  document.getElementById('inProdStock').value=0;
+}
+function quitarProducto(id){
+  if(cobros.some(c=>c.productoId===id)){
+    if(!confirm('Este producto ya tiene ventas hoy. ¿Quitarlo del inventario? (Las ventas ya hechas se conservan.)')) return;
+  }
+  productos = productos.filter(p=>p.id!==id);
+  if(editandoProdId===id) cancelarEdicionProd();
+  renderProductos(); renderSelProducto();
+}
+
+// unidades vendidas hoy de un producto
+function vendidasHoy(prodId){
+  return cobros.filter(c=>c.tipo==='producto' && c.productoId===prodId).length;
+}
+
+function renderSelProducto(){
+  const sel = document.getElementById('selProducto');
+  const disponibles = productos.filter(p=>p.stock>0);
+  if(!disponibles.length){
+    sel.innerHTML = '<option value="">— Sin productos con stock —</option>';
+  } else {
+    sel.innerHTML = disponibles.map(p=>`<option value="${p.id}">${p.nombre} — $${p.precio} (${p.stock} disp.)</option>`).join('');
+  }
+  if(tipoCobroSel==='producto') alElegirProducto();
+}
+function alElegirProducto(){
+  const id = parseInt(document.getElementById('selProducto').value);
+  const p = productos.find(x=>x.id===id);
+  if(p) document.getElementById('inMonto').value = p.precio;
+}
+
+function renderProductos(){
+  // Tabla inventario
+  const tbody = document.querySelector('#tablaInventario tbody');
+  if(!productos.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="vacio">Sin productos en el inventario</td></tr>';
+  } else {
+    tbody.innerHTML = productos.map(p=>{
+      const stockClase = p.stock<=2 ? 'stock bajo' : 'stock';
+      return `<tr>
+        <td><b>${p.nombre}</b></td>
+        <td>$${p.costo}</td>
+        <td>$${p.precio}</td>
+        <td><span class="chip ${stockClase}">${p.stock}</span></td>
+        <td>${vendidasHoy(p.id)}</td>
+        <td class="acciones-inv">
+          <button class="btn-editar" onclick="editarProducto(${p.id})">Editar</button>
+          <button class="btn-quitar" onclick="quitarProducto(${p.id})">Quitar</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // Control de venta (real de la sesión)
+  const ventasProd = cobros.filter(c=>c.tipo==='producto');
+  const vendidoHoy = ventasProd.reduce((s,c)=>s+c.monto,0);
+  const udsHoy = ventasProd.length;
+  let ganancia = 0;
+  ventasProd.forEach(c=>{
+    const p = productos.find(x=>x.id===c.productoId);
+    if(p) ganancia += (p.precio - p.costo);
+  });
+  document.getElementById('pcHoy').innerHTML = `$${vendidoHoy.toFixed(0)} <small>(${udsHoy} uds)</small>`;
+  document.getElementById('pcHoyUds').textContent = `(${udsHoy} uds)`;
+  document.getElementById('pcGanancia').textContent = '$'+ganancia.toFixed(0);
+  document.getElementById('pcSemana').textContent = '$'+(TOTAL_PRODUCTO_SEMANA_PREV+vendidoHoy).toFixed(0);
+  document.getElementById('pcMes').textContent = '$'+(TOTAL_PRODUCTO_MES_PREV+vendidoHoy).toFixed(0);
+
+  // Gráfico más vendidos — acumulado de la SEMANA (días previos + hoy)
+  const ranking = productos.map(p=>({
+      nombre:p.nombre,
+      uds:(UDS_SEMANA_PREV[p.id]||0) + vendidasHoy(p.id)
+    }))
+    .filter(r=>r.uds>0).sort((a,b)=>b.uds-a.uds);
+  const contGraf = document.getElementById('graficoMas');
+  if(!ranking.length){
+    contGraf.innerHTML = '<div class="vacio">Vende productos para ver el ranking</div>';
+  } else {
+    const max = ranking[0].uds;
+    contGraf.innerHTML = ranking.map(r=>`
+      <div class="barra-fila"><div class="nom">${r.nombre}</div>
+        <div class="barra-track"><div class="barra-fill prod" style="width:${(r.uds/max*100)}%">${r.uds}</div></div>
+      </div>`).join('');
+  }
+
+  // Gráfico semana — serie real del historial + hoy
+  const serie = SERIE_SEMANA.concat([{dia:'Hoy', monto:vendidoHoy}]);
+  const maxSem = Math.max(...serie.map(d=>d.monto), 1);
+  document.getElementById('graficoSemana').innerHTML = serie.map(d=>`
+    <div class="barra-fila"><div class="nom">${d.dia}${d.dia==='Hoy'?' •':''}</div>
+      <div class="barra-track"><div class="barra-fill" style="width:${(d.monto/maxSem*100)}%">$${d.monto}</div></div>
+    </div>`).join('');
+
+  // Estimación simple: promedio diario de la semana × 30
+  const totalSemProd = TOTAL_PRODUCTO_SEMANA_PREV + vendidoHoy;
+  const diasContados = SERIE_SEMANA.length + 1;
+  const promDiario = totalSemProd / diasContados;
+  const estimMes = Math.round(promDiario * 30);
+  const elEstim = document.getElementById('estimacionMes');
+  if(elEstim) elEstim.textContent = '$'+estimMes.toLocaleString('es-MX');
+}
+
+// ===== Cobro =====
+function elegirTipo(t){
+  tipoCobroSel = t;
+  document.getElementById('btnServicio').classList.toggle('activo', t==='servicio');
+  document.getElementById('btnProducto').classList.toggle('activo', t==='producto');
+  document.getElementById('lblMonto').textContent = t==='servicio'?'Monto del servicio ($)':'Monto del producto ($)';
+  document.getElementById('bloqueProducto').style.display = t==='producto'?'block':'none';
+  if(t==='producto'){ renderSelProducto(); } else { document.getElementById('inMonto').value=''; }
+}
+function elegirMetodo(m){
+  metodoPagoSel = m;
+  document.getElementById('btnEfectivo').classList.toggle('activo', m==='efectivo');
+  document.getElementById('btnTarjeta').classList.toggle('activo', m==='tarjeta');
+}
+function registrarCobro(){
+  if(!barberos.length){ alert('Agrega al menos un barbero primero (pestaña Barberos)'); return; }
+  const barberoId = parseInt(document.getElementById('selBarbero').value);
+  const monto = parseFloat(document.getElementById('inMonto').value);
+  if(!monto || monto<=0){ alert('Escribe un monto válido'); return; }
+
+  let productoId = null;
+  if(tipoCobroSel==='producto'){
+    productoId = parseInt(document.getElementById('selProducto').value);
+    const p = productos.find(x=>x.id===productoId);
+    if(!p){ alert('Elige un producto del inventario (o agrégalo en la pestaña Productos)'); return; }
+    if(p.stock<=0){ alert('Ese producto no tiene stock disponible'); return; }
+    p.stock--; // descuenta 1 unidad
+  }
+
+  cobros.push({ id:cont++, barberoId, tipo:tipoCobroSel, monto, metodo:metodoPagoSel, productoId });
+  document.getElementById('inMonto').value='';
+  renderTodo(); renderProductos(); renderSelProducto();
+}
+function quitarCobro(id){
+  const c = cobros.find(x=>x.id===id);
+  // devolver stock si era producto
+  if(c && c.tipo==='producto' && c.productoId!=null){
+    const p = productos.find(x=>x.id===c.productoId);
+    if(p) p.stock++;
+  }
+  cobros = cobros.filter(x=>x.id!==id);
+  renderTodo(); renderProductos(); renderSelProducto();
+}
+
+// ===== Nómina =====
+function calcularNomina(b){
+  const mios = cobros.filter(c=>c.barberoId===b.id);
+  const servMonto = mios.filter(c=>c.tipo==='servicio').reduce((s,c)=>s+c.monto,0);
+  const prodMonto = mios.filter(c=>c.tipo==='producto').reduce((s,c)=>s+c.monto,0);
+  const numProd   = mios.filter(c=>c.tipo==='producto').length;
+
+  let comServicio=0, baseLabel='';
+  if(b.metodo==='porcentaje'){
+    comServicio = servMonto*(b.porcentaje/100);
+    baseLabel = `${b.porcentaje}% de $${servMonto.toFixed(0)} en servicios`;
+  } else {
+    comServicio = b.sueldoFijo;
+    baseLabel = `Sueldo fijo semanal (no cambia por producción del día)`;
+  }
+  let comProducto=0, prodLabel='';
+  if(b.tipoComProd==='porcentaje'){
+    comProducto = prodMonto*(b.comProd/100);
+    prodLabel = `${b.comProd}% de $${prodMonto.toFixed(0)} en producto (${numProd})`;
+  } else {
+    comProducto = numProd*b.comProd;
+    prodLabel = `$${b.comProd} × ${numProd} producto${numProd===1?'':'s'}`;
+  }
+  return { comServicio, baseLabel, comProducto, prodLabel, total:comServicio+comProducto };
+}
+
+// ===== Render principal =====
+function renderTodo(){
+  document.getElementById('contCobros').textContent = cobros.length;
+  const listaC = document.getElementById('listaCobros');
+  if(!cobros.length){
+    listaC.innerHTML='<div class="vacio">Aún no hay cobros</div>';
+  } else {
+    listaC.innerHTML = cobros.slice().reverse().map(c=>{
+      const b = barberos.find(x=>x.id===c.barberoId);
+      const nombreB = b?b.nombre:'(?)';
+      let tipoTxt = c.tipo==='servicio'?'Servicio':'Producto';
+      if(c.tipo==='producto' && c.productoId!=null){
+        const p = productos.find(x=>x.id===c.productoId);
+        if(p) tipoTxt = 'Producto: '+p.nombre;
+      }
+      const metClase = c.metodo==='efectivo'?'efectivo':'tarjeta';
+      const metTxt = c.metodo==='efectivo'?'Efectivo':'Tarjeta';
+      return `<div class="cobro-item">
+        <span><span class="punto ${metClase}"></span><b>${nombreB}</b>
+          <span class="meta">· ${tipoTxt} · ${metTxt} · $${c.monto}</span></span>
+        <button class="btn-quitar" onclick="quitarCobro(${c.id})">×</button></div>`;
+    }).join('');
+  }
+
+  const prod = cobros.reduce((s,c)=>s+c.monto,0);
+  const efe = cobros.filter(c=>c.metodo==='efectivo').reduce((s,c)=>s+c.monto,0);
+  const tar = cobros.filter(c=>c.metodo==='tarjeta').reduce((s,c)=>s+c.monto,0);
+  const ventasProd = cobros.filter(c=>c.tipo==='producto');
+  const prd = ventasProd.reduce((s,c)=>s+c.monto,0);
+  document.getElementById('rProduccion').textContent = '$'+prod.toFixed(0);
+  document.getElementById('rEfectivo').textContent = '$'+efe.toFixed(0);
+  document.getElementById('rTarjeta').textContent = '$'+tar.toFixed(0);
+  document.getElementById('rProducto').innerHTML = `$${prd.toFixed(0)} <small>(${ventasProd.length} uds)</small>`;
+
+  const contN = document.getElementById('nominaContenedor');
+  const cierre = document.getElementById('cierreDia');
+  if(!barberos.length){
+    contN.innerHTML='<div class="vacio">Agrega barberos abajo para empezar</div>';
+    cierre.style.display='none'; return;
+  }
+  let totalNomina=0;
+  contN.innerHTML = barberos.map(b=>{
+    const r = calcularNomina(b);
+    totalNomina += r.total;
+    const metTxt = b.metodo==='porcentaje'?'Porcentaje':'Sueldo fijo semanal';
+    return `<div class="panel-nomina">
+      <div class="nombre">${b.nombre} <span class="sub">(${metTxt})</span></div>
+      <div class="linea"><span>Comisión por servicio</span><span>$${r.comServicio.toFixed(2)}</span></div>
+      <div class="sub">${r.baseLabel}</div>
+      <div class="linea"><span>+ Comisión por producto</span><span>$${r.comProducto.toFixed(2)}</span></div>
+      <div class="sub">${r.prodLabel}</div>
+      <div class="linea total"><span>Total a pagar</span><span>$${r.total.toFixed(2)}</span></div>
+    </div>`;
+  }).join('');
+  cierre.style.display='block';
+  document.getElementById('cProduccion').textContent = '$'+prod.toFixed(2);
+  document.getElementById('cNomina').textContent = '$'+totalNomina.toFixed(2);
+  document.getElementById('cNegocio').textContent = '$'+(prod-totalNomina).toFixed(2);
+
+  renderNominaSemana();
+}
+
+// Nómina acumulada de la semana = (historial 6 días) + (hoy, calculado en vivo)
+function renderNominaSemana(){
+  const cont = document.getElementById('nominaSemanaContenedor');
+  if(!cont) return;
+  cont.innerHTML = barberos.map(b=>{
+    // Acumular servicios y producto de los días previos
+    let servSem=0, prodMontoSem=0, prodNSem=0;
+    HISTORIAL.forEach(d=>{
+      const reg = d.porBarbero[b.id];
+      if(reg){ servSem+=reg.serv; prodMontoSem+=reg.prodMonto; prodNSem+=reg.prodN; }
+    });
+    // Sumar hoy
+    const hoy = calcularNomina(b);
+    const misHoy = cobros.filter(c=>c.barberoId===b.id);
+    const servHoy = misHoy.filter(c=>c.tipo==='servicio').reduce((s,c)=>s+c.monto,0);
+    const prodMontoHoy = misHoy.filter(c=>c.tipo==='producto').reduce((s,c)=>s+c.monto,0);
+    const prodNHoy = misHoy.filter(c=>c.tipo==='producto').length;
+
+    const servTotal = servSem + servHoy;
+    const prodMontoTotal = prodMontoSem + prodMontoHoy;
+    const prodNTotal = prodNSem + prodNHoy;
+
+    // Comisión de servicio de la semana
+    let comServSem=0, baseLabel='';
+    if(b.metodo==='porcentaje'){
+      comServSem = servTotal*(b.porcentaje/100);
+      baseLabel = `${b.porcentaje}% de $${servTotal.toFixed(0)} en servicios (7 días)`;
+    } else {
+      comServSem = b.sueldoFijo; // el sueldo fijo es semanal → se paga una vez
+      baseLabel = `Sueldo fijo semanal (fijo, sin importar producción)`;
+    }
+    // Comisión de producto de la semana
+    let comProdSem=0, prodLabel='';
+    if(b.tipoComProd==='porcentaje'){
+      comProdSem = prodMontoTotal*(b.comProd/100);
+      prodLabel = `${b.comProd}% de $${prodMontoTotal.toFixed(0)} en producto (${prodNTotal} uds)`;
+    } else {
+      comProdSem = prodNTotal*b.comProd;
+      prodLabel = `$${b.comProd} × ${prodNTotal} producto${prodNTotal===1?'':'s'}`;
+    }
+    const totalSem = comServSem + comProdSem;
+    const metTxt = b.metodo==='porcentaje'?'Porcentaje':'Sueldo fijo semanal';
+    return `<div class="panel-nomina">
+      <div class="nombre">${b.nombre} <span class="sub">(${metTxt})</span></div>
+      <div class="linea"><span>Comisión por servicio</span><span>$${comServSem.toFixed(2)}</span></div>
+      <div class="sub">${baseLabel}</div>
+      <div class="linea"><span>+ Comisión por producto</span><span>$${comProdSem.toFixed(2)}</span></div>
+      <div class="sub">${prodLabel}</div>
+      <div class="linea total"><span>Total semana</span><span>$${totalSem.toFixed(2)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ===== Agenda =====
+function renderAgenda(){
+  const vacia = document.getElementById('agendaVacia');
+  const scroll = document.getElementById('agendaScroll');
+  if(!barberos.length){ vacia.style.display='block'; scroll.style.display='none'; return; }
+  vacia.style.display='none'; scroll.style.display='block';
+  const tabla = document.getElementById('tablaAgenda');
+  let html = '<thead><tr><th class="hora-col">Hora</th>';
+  barberos.forEach(b=> html += `<th>${b.nombre}</th>`);
+  html += '</tr></thead><tbody>';
+  HORAS.forEach(h=>{
+    html += `<tr><td class="hora-col">${h.label}</td>`;
+    barberos.forEach(b=>{
+      const cita = citas.find(c=>c.barberoId===b.id && c.hora===h.key);
+      if(cita){
+        const clase = cita.servicio==='Corte'?'corte':(cita.servicio==='Barba'?'barba':'otro');
+        const cli = cita.cliente ? `<b>${cita.cliente}</b>` : '';
+        html += `<td class="celda"><div class="cita ${clase}">
+          <span class="x" onclick="borrarCita(${cita.id});event.stopPropagation();">×</span>
+          <span>${cita.servicio}</span>${cli}</div></td>`;
+      } else {
+        html += `<td class="celda" onclick="abrirModal(${b.id},'${h.key}')"></td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  tabla.innerHTML = html;
+}
+function abrirModal(barberoId, hora){
+  modalBarberoId = barberoId; modalHora = hora; servicioModalSel='Corte';
+  const b = barberos.find(x=>x.id===barberoId);
+  const h = HORAS.find(x=>x.key===hora);
+  document.getElementById('modalInfo').textContent = `${b.nombre} — ${h.label}`;
+  document.querySelectorAll('#modalServicios button').forEach((btn,i)=>btn.classList.toggle('activo',i===0));
+  document.getElementById('inNombreCliente').value='';
+  document.getElementById('modalAgenda').classList.add('abierto');
+}
+function elegirServicioModal(serv, btn){
+  servicioModalSel = serv;
+  document.querySelectorAll('#modalServicios button').forEach(b=>b.classList.remove('activo'));
+  btn.classList.add('activo');
+}
+function guardarCita(){
+  citas.push({ id:cont++, barberoId:modalBarberoId, hora:modalHora,
+    servicio:servicioModalSel, cliente:document.getElementById('inNombreCliente').value.trim() });
+  cerrarModal(); renderAgenda();
+}
+function borrarCita(id){ citas = citas.filter(c=>c.id!==id); renderAgenda(); }
+function cerrarModal(){ document.getElementById('modalAgenda').classList.remove('abierto'); }
+
+// ===== Inicio =====
+renderBarberos(); renderSelBarbero(); renderTodo(); renderProductos(); renderSelProducto();
+</script>
+</body>
+</html>
