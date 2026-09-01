@@ -126,6 +126,7 @@
   .cc-totales .cc-t{display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:2px 0;}
   .cc-totales .cc-t.serv{color:#8fb4ff;}
   .cc-totales .cc-t.prod{color:var(--prod);}
+  .cc-totales .cc-t.gran-total{color:var(--ok);font-weight:700;font-size:15px;border-top:1px solid var(--border);margin-top:4px;padding-top:6px;}
 </style>
 </head>
 <body>
@@ -793,6 +794,7 @@ function renderTodo(){
         <div class="cc-totales">
           <div class="cc-t serv"><span>Total servicios</span><span>$${subServ}</span></div>
           <div class="cc-t prod"><span>Total productos</span><span>$${subProd}</span></div>
+          <div class="cc-t gran-total"><span>Total</span><span>$${subServ+subProd}</span></div>
         </div>
       </div>`;
     }).join('')+'</div>';
